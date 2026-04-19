@@ -1,8 +1,10 @@
 import SwiftUI
+import AVFoundation
 import Combine
 import MusicXML
+import PianoKeyboard
 
-class PlaybackManager: ObservableObject {
+class PlaybackManager: ObservableObject, PianoKeyboardDelegate {
     @Published var isPlaying = false
     @Published var tempo: Double = 120.0
     @Published var highlightedNotes: Set<Int> = []   // MIDI numbers only
@@ -10,10 +12,27 @@ class PlaybackManager: ObservableObject {
     private var noteEvents: [NoteEvent] = []
     private var timer: Timer?
     private var startDate: Date?
+    private let audioEngine = AVAudioEngine()
+    private let sampler = AVAudioUnitSampler()
     
     init() {
         self.noteEvents = createDemoScore()
+        setupAudio() // Start the engine!
     }
+    
+    private func setupAudio() {
+        audioEngine.attach(sampler)
+        audioEngine.connect(sampler, to: audioEngine.mainMixerNode, format: nil)
+        
+        do {
+            try audioEngine.start()
+            // Optional: Load a default Apple piano sound bank if available
+            // If this fails, it defaults to a basic sine wave synthesizer
+        } catch {
+            print("❌ Audio Engine failed to start: \(error.localizedDescription)")
+        }
+    }
+
     
     func loadMusicXML(from url: URL) {
             print("✅ MusicXML file selected: \(url.lastPathComponent)")
@@ -26,60 +45,22 @@ class PlaybackManager: ObservableObject {
             return createDemoScore()
         }
     
+    func pianoKeyDown(_ keyNumber: Int) {
+        sampler.startNote(UInt8(keyNumber), withVelocity: 80, onChannel: 0)
+            // The user tapped a key on the screen!
+            DispatchQueue.main.async {
+                self.highlightedNotes.insert(keyNumber)
+            }
+        }
+        
+        func pianoKeyUp(_ keyNumber: Int) {
+            sampler.stopNote(UInt8(keyNumber), onChannel: 0)
+            // The user released a key on the screen!
+            DispatchQueue.main.async {
+                self.highlightedNotes.remove(keyNumber)
+            }
+        }
     
-    // MARK: - Real MusicXML Loading
-//    func loadMusicXML(from url: URL) {
-//        do {
-//            let score = try Score(url: url)
-//            self.noteEvents = parseScore(score)
-//            print("✅ Loaded \(url.lastPathComponent) — \(noteEvents.count) notes ready")
-//        } catch {
-//            print("❌ Failed to parse MusicXML: \(error.localizedDescription)")
-//        }
-//    }
-//    
-//    private func parseScore(_ score: Score) -> [NoteEvent] {
-//        var events: [NoteEvent] = []
-//        var currentTime: Double = 0.0
-//        
-//        // ✅ Correct way to access the partwise score
-//        guard case .partwise(let partwise) = score else { return events }
-//        guard let part = partwise.parts.first else { return events }
-//        
-//        var divisions: Int = 1
-//        
-//        for measure in part.measures {
-//            for element in measure.musicData {
-//                switch element {
-//                case .attributes(let attr):
-//                    if let div = attr.divisions {
-//                        divisions = div
-//                    }
-//                case .note(let note):
-//                    guard let pitch = note.pitch, let durationDiv = note.duration else { continue }
-//                    
-//                    let midi = pitchToMIDI(pitch)
-//                    let durationSeconds = Double(durationDiv) / Double(divisions) * (60.0 / tempo)
-//                    
-//                    events.append(NoteEvent(
-//                        pitch: midi,
-//                        startTime: currentTime,
-//                        duration: durationSeconds
-//                    ))
-//                    currentTime += durationSeconds
-//                default:
-//                    break
-//                }
-//            }
-//        }
-//        return events
-//    }
-
-//    private func pitchToMIDI(_ pitch: Pitch) -> Int {   // ← no MusicXML. prefix
-//        let stepMap: [Step: Int] = [.c: 0, .d: 2, .e: 4, .f: 5, .g: 7, .a: 9, .b: 11]
-//        let base = stepMap[pitch.step] ?? 0
-//        return (pitch.octave + 1) * 12 + base + (pitch.alter ?? 0)
-//    }
     private func pitchToMIDI(_ pitch: Pitch) -> Int {
         let stepMap: [Step: Int] = [.c: 0, .d: 2, .e: 4, .f: 5, .g: 7, .a: 9, .b: 11]
         let base = stepMap[pitch.step] ?? 0
@@ -134,6 +115,7 @@ class PlaybackManager: ObservableObject {
                     }
                 }
                 self.highlightedNotes = active
+                active.forEach { x in self.pianoKeyDown(x) }
                 
                 if elapsed > (self.noteEvents.last?.startTime ?? 0) + 2.0 {
                     self.stop()

@@ -16,26 +16,17 @@ struct ContentView: View {
     var body: some View {
         VStack(spacing: 20) {
             Text("Your Sheet Music Player")
-                .font(.largeTitle)
-            
-            // ✅ Real nice piano keyboard with external highlighting
-//            PianoKeyboard.PianoKeyboardDelegate(
-//                            lowestKey: 48,                  // C3
-//                            highestKey: 84,                 // C6
-//                            pressedKeys: .constant(displayedKeys),   // auto + user highlights
-//                            noteOn: { midiNote in
-//                                userHighlighted.insert(midiNote)
-//                            },
-//                            noteOff: { midiNote in
-//                                userHighlighted.remove(midiNote)
-//                            }
-//                        )
+                    .font(.largeTitle)
+                
             PianoKeyboardView(
                 viewModel: keyboardViewModel,
                 style: ClassicStyle()
             )
             .frame(height: 300)
-            
+            .onAppear {
+                // Tell the keyboard to send user taps to your playback manager
+                keyboardViewModel.delegate = playback
+            }
             
             HStack {
                 Button(playback.isPlaying ? "⏹ Stop" : "▶️ Play") {
@@ -68,5 +59,21 @@ struct ContentView: View {
         }
         .padding()
         .onDisappear { playback.stop() }
+        .onChange(of: playback.highlightedNotes) { oldNotes, newNotes in
+            // 1. Find which notes just started playing
+            let notesToPress = newNotes.subtracting(oldNotes)
+            
+            // 2. Find which notes just finished playing
+            let notesToRelease = oldNotes.subtracting(newNotes)
+            
+            // 3. Tell the ViewModel to press/release them!
+            for note in notesToPress {
+                keyboardViewModel.delegate?.pianoKeyDown(note)
+            }
+            
+            for note in notesToRelease {
+                keyboardViewModel.delegate?.pianoKeyUp(note)
+            }
+        }
     }
 }
