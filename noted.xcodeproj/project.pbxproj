@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		F91D42EF2F9525AE00CF5A90 /* PianoKeyboard in Frameworks */ = {isa = PBXBuildFile; productRef = F91D42EE2F9525AE00CF5A90 /* PianoKeyboard */; };
+		F91D42F62F952A2D00CF5A90 /* MusicXML in Frameworks */ = {isa = PBXBuildFile; productRef = F91D42F52F952A2D00CF5A90 /* MusicXML */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		F91E028E2F951C060071167E /* noted.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = noted.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +28,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F91D42F62F952A2D00CF5A90 /* MusicXML in Frameworks */,
+				F91D42EF2F9525AE00CF5A90 /* PianoKeyboard in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +72,8 @@
 			);
 			name = noted;
 			packageProductDependencies = (
+				F91D42EE2F9525AE00CF5A90 /* PianoKeyboard */,
+				F91D42F52F952A2D00CF5A90 /* MusicXML */,
 			);
 			productName = noted;
 			productReference = F91E028E2F951C060071167E /* noted.app */;
@@ -94,6 +103,10 @@
 			);
 			mainGroup = F91E02852F951C060071167E;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F91D42ED2F9525AE00CF5A90 /* XCRemoteSwiftPackageReference "PianoKeyboard" */,
+				F91D42F42F952A2D00CF5A90 /* XCRemoteSwiftPackageReference "MusicXML" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F91E028F2F951C060071167E /* Products */;
 			projectDirPath = "";
@@ -345,6 +358,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F91D42ED2F9525AE00CF5A90 /* XCRemoteSwiftPackageReference "PianoKeyboard" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/garynewby/PianoKeyboard.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+		F91D42F42F952A2D00CF5A90 /* XCRemoteSwiftPackageReference "MusicXML" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/dn-m/MusicXML.git";
+			requirement = {
+				branch = latest;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F91D42EE2F9525AE00CF5A90 /* PianoKeyboard */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F91D42ED2F9525AE00CF5A90 /* XCRemoteSwiftPackageReference "PianoKeyboard" */;
+			productName = PianoKeyboard;
+		};
+		F91D42F52F952A2D00CF5A90 /* MusicXML */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F91D42F42F952A2D00CF5A90 /* XCRemoteSwiftPackageReference "MusicXML" */;
+			productName = MusicXML;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F91E02862F951C060071167E /* Project object */;
 }

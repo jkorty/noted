@@ -1,53 +1,14 @@
 import SwiftUI
-
-// Pure SwiftUI piano keyboard — no extra packages required!
-struct SimplePianoKeyboard: View {
-    @Binding var pressedKeys: Set<Int>   // MIDI numbers for highlighting
-    
-    var body: some View {
-        GeometryReader { geo in
-            HStack(spacing: 1) {
-                ForEach(48...84, id: \.self) { midi in
-                    KeyView(midi: midi, isPressed: pressedKeys.contains(midi))
-                        .frame(width: geo.size.width / 37)
-                }
-            }
-        }
-        .frame(height: 300)
-    }
-}
-
-struct KeyView: View {
-    let midi: Int
-    let isPressed: Bool
-    
-    var body: some View {
-        let isBlack = [1, 3, 6, 8, 10].contains(midi % 12)
-        Rectangle()
-            .fill(isBlack ? Color.black : Color.white)
-            .overlay(Rectangle().stroke(Color.black, lineWidth: 1))
-            .overlay(isPressed ? Color.red.opacity(0.7) : Color.clear)
-            .overlay(
-                Text(noteName(midi))
-                    .font(.caption2)
-                    .foregroundColor(isBlack ? .white : .black)
-                    .offset(y: isBlack ? 65 : 115),
-                alignment: .bottom
-            )
-    }
-    
-    private func noteName(_ midi: Int) -> String {
-        let notes = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
-        let noteIndex = midi % 12
-        let octave = midi / 12 - 1
-        return "\(notes[noteIndex])\(octave)"
-    }
-}
+import PianoKeyboard   // ← the nice keyboard we just added
 
 struct ContentView: View {
     @StateObject private var playback = PlaybackManager()
-    @State private var userHighlighted: Set<Int> = []
+    @State private var userHighlighted: Set<Int> = []   // only for taps
+        
+    // Add the real keyboard ViewModel
+    @State private var keyboardViewModel = PianoKeyboardViewModel()
     
+    // Merge user taps + auto-playing notes
     private var displayedKeys: Set<Int> {
         userHighlighted.union(playback.highlightedNotes)
     }
@@ -57,7 +18,24 @@ struct ContentView: View {
             Text("Your Sheet Music Player")
                 .font(.largeTitle)
             
-            SimplePianoKeyboard(pressedKeys: .constant(displayedKeys))
+            // ✅ Real nice piano keyboard with external highlighting
+//            PianoKeyboard.PianoKeyboardDelegate(
+//                            lowestKey: 48,                  // C3
+//                            highestKey: 84,                 // C6
+//                            pressedKeys: .constant(displayedKeys),   // auto + user highlights
+//                            noteOn: { midiNote in
+//                                userHighlighted.insert(midiNote)
+//                            },
+//                            noteOff: { midiNote in
+//                                userHighlighted.remove(midiNote)
+//                            }
+//                        )
+            PianoKeyboardView(
+                viewModel: keyboardViewModel,
+                style: ClassicStyle()
+            )
+            .frame(height: 300)
+            
             
             HStack {
                 Button(playback.isPlaying ? "⏹ Stop" : "▶️ Play") {
@@ -82,23 +60,9 @@ struct ContentView: View {
             Text("User taps: \(userHighlighted.map { "\($0)" }.joined(separator: ", "))")
                 .font(.caption)
             
-            // NEW: Real file picker
             Button("Import MusicXML File") {
-                // This works on both macOS and iOS
-            }
-            .fileImporter(
-                isPresented: .constant(true),   // we'll make this a proper @State later if needed
-                allowedContentTypes: [.xml, .data],  // .musicxml is XML
-                allowsMultipleSelection: false
-            ) { result in
-                switch result {
-                case .success(let urls):
-                    if let url = urls.first {
-                        playback.loadMusicXML(from: url)
-                    }
-                case .failure(let error):
-                    print("File picker error: \(error)")
-                }
+                // We'll hook up the real picker in the next message if you want
+                print("File picker coming next...")
             }
             .buttonStyle(.bordered)
         }

@@ -1,0 +1,42 @@
+{
+  "originHash" : "b2b32f4b38690f24b8c6d2c47cd3c16ce0b3f81c09487106927ab91b72c6f1e9",
+  "pins" : [
+    {
+      "identity" : "musicxml",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dn-m/MusicXML.git",
+      "state" : {
+        "branch" : "latest",
+        "revision" : "bd65d614b34fb6fc842e63eca40c8cb2e975d81a"
+      }
+    },
+    {
+      "identity" : "pianokeyboard",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/garynewby/PianoKeyboard.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "05e0152c8045e902315fbca4e5f7763ea12f7902"
+      }
+    },
+    {
+      "identity" : "xmlcoder",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/MaxDesiatov/XMLCoder",
+      "state" : {
+        "revision" : "b2b5d72345bab9e1938a483cf862b498aeed3796",
+        "version" : "0.18.1"
+      }
+    },
+    {
+      "identity" : "yams",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/jpsim/Yams.git",
+      "state" : {
+        "revision" : "c947a306d2e80ecb2c0859047b35c73b8e1ca27f",
+        "version" : "2.0.0"
+      }
+    }
+  ],
+  "version" : 3
+}
