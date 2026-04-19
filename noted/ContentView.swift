@@ -15,7 +15,7 @@ struct ContentView: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            Text("Your Sheet Music Player")
+            Text("I Can't Read")
                     .font(.largeTitle)
                 
             PianoKeyboardView(
